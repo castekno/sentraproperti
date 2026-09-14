@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "Database": {
+      "title": "Database",
+      "description": "Aggregated properti database document storing cities and projects with metadata",
+      "type": "object",
+      "properties": {
+        "cities": {
+          "type": "array",
+          "description": "List of cities with full details and cover image"
+        },
+        "projects": {
+          "type": "array",
+          "description": "List of property projects with gallery photos, captions, and payment schemes"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Timestamp of last Firestore sync"
+        },
+        "firebaseName": {
+          "type": "string",
+          "description": "Firebase name: sentrapropertidb"
+        },
+        "firestoreDatabase": {
+          "type": "string",
+          "description": "Firestore database: spdb"
+        },
+        "collectionId": {
+          "type": "string",
+          "description": "Collection: dbproperti"
+        },
+        "documentId": {
+          "type": "string",
+          "description": "Document: Database"
+        }
+      }
+    },
+    "City": {
+      "title": "City",
+      "description": "City record in dbcities collection",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "image": { "type": "string" },
+        "projectCount": { "type": "number" },
+        "createdAt": { "type": "number" }
+      }
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Individual project document in dbproperti collection",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "groupSales": { "type": "string", "description": "Group Sales marketing/sales team" },
+        "cityId": { "type": "string" },
+        "developer": { "type": "string" },
+        "price": { "type": "string" },
+        "status": { "type": "string" },
+        "type": { "type": "string" },
+        "images": { "type": "array" },
+        "bsiSchemePhoto": { "type": "string" },
+        "cashBertahapSchemePhoto": { "type": "string" },
+        "creditDeveloperSchemePhoto": { "type": "string" }
+      }
+    },
+    "Documentation": {
+      "title": "Documentation",
+      "description": "Documentation photo item in dbdocumentation collection",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "date": { "type": "string" },
+        "category": { "type": "string" },
+        "caption": { "type": "string" },
+        "createdAt": { "type": "number" }
+      }
+    }
+  },
+  "firestore": {
+    "/dbproperti/{projectId}": {
+      "schema": "Project",
+      "description": "Property project documents or master Database document in dbproperti"
+    },
+    "/dbcities/{cityId}": {
+      "schema": "City",
+      "description": "Individual city documents in dbcities"
+    },
+    "/dbdocumentation/{docId}": {
+      "schema": "Documentation",
+      "description": "Documentation activities photos in dbdocumentation"
+    }
+  }
+}
