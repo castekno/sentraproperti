@@ -181,7 +181,7 @@ export const storageService = {
       return memoryProjects;
     } catch {
       memoryProjects = INITIAL_PROJECTS;
-      return INITIAL_PROJECTS;
+      return memoryProjects;
     }
   },
 
@@ -214,7 +214,7 @@ export const storageService = {
       return memoryDocs;
     } catch {
       memoryDocs = INITIAL_DOCUMENTATION;
-      return INITIAL_DOCUMENTATION;
+      return memoryDocs;
     }
   },
 
@@ -547,7 +547,7 @@ export const storageService = {
     return updatedProjects;
   },
 
-    // Real-time Firestore Listener for Collection: dbdocumentation (Multi-doc per photo)
+  // Real-time Firestore Listener for Collection: dbdocumentation (Multi-doc per photo)
   subscribeToDocumentation(
     onUpdate: (docs: DocumentationPhoto[]) => void,
     onError?: (error: Error) => void

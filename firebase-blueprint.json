@@ -44,7 +44,9 @@
         "name": { "type": "string" },
         "image": { "type": "string" },
         "projectCount": { "type": "number" },
-        "createdAt": { "type": "number" }
+        "isDeleted": { "type": "boolean" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
       }
     },
     "Project": {
@@ -63,7 +65,10 @@
         "images": { "type": "array" },
         "bsiSchemePhoto": { "type": "string" },
         "cashBertahapSchemePhoto": { "type": "string" },
-        "creditDeveloperSchemePhoto": { "type": "string" }
+        "creditDeveloperSchemePhoto": { "type": "string" },
+        "isDeleted": { "type": "boolean" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
       }
     },
     "Documentation": {
@@ -77,7 +82,9 @@
         "date": { "type": "string" },
         "category": { "type": "string" },
         "caption": { "type": "string" },
-        "createdAt": { "type": "number" }
+        "isDeleted": { "type": "boolean" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
       }
     }
   },

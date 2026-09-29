@@ -1,5 +1,11 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { 
+  initializeFirestore, 
+  getFirestore, 
+  Firestore, 
+  persistentLocalCache, 
+  persistentMultipleTabManager 
+} from 'firebase/firestore';
 import firebaseConfigJson from '../../firebase-applet-config.json';
 
 const firebaseConfig = {
@@ -17,16 +23,27 @@ export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getA
 
 export const FIRESTORE_DATABASE_ID = firebaseConfigJson.firestoreDatabaseId || 'spdb';
 
-// Initialize Firestore with specific database ID (spdb)
+// Initialize Firestore with Persistent Local Cache (IndexedDB) and specific database ID (spdb)
 let firestoreDb: Firestore;
 try {
+  const cacheSettings = {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    })
+  };
+
+  if (FIRESTORE_DATABASE_ID && FIRESTORE_DATABASE_ID !== '(default)') {
+    firestoreDb = initializeFirestore(app, cacheSettings, FIRESTORE_DATABASE_ID);
+  } else {
+    firestoreDb = initializeFirestore(app, cacheSettings);
+  }
+} catch {
+  // If already initialized or persistent cache not supported in environment, fallback to existing instance
   if (FIRESTORE_DATABASE_ID && FIRESTORE_DATABASE_ID !== '(default)') {
     firestoreDb = getFirestore(app, FIRESTORE_DATABASE_ID);
   } else {
     firestoreDb = getFirestore(app);
   }
-} catch {
-  firestoreDb = getFirestore(app);
 }
 
 export const db = firestoreDb;

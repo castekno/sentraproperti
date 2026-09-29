@@ -48,6 +48,7 @@ export interface Project {
   creditDeveloperSchemePhotoCaption?: string;
   featured?: boolean;
   status: PropertyStatus;
+  isDeleted?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -59,7 +60,9 @@ export interface City {
   coverImage: string;
   description?: string;
   order?: number;
+  isDeleted?: boolean;
   createdAt?: number;
+  updatedAt?: number;
 }
 
 export interface PropertyFilter {
@@ -79,6 +82,7 @@ export interface DocumentationPhoto {
   photoUrl: string;
   category?: string;
   date?: string;
+  isDeleted?: boolean;
   createdAt: number;
   updatedAt?: number;
 }
