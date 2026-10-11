@@ -89,6 +89,12 @@ export default function App() {
     const unsubscribe = storageService.subscribeToData((updatedCities, updatedProjects) => {
       setCities(updatedCities);
       setProjects(updatedProjects);
+      // Synchronize detail modal with latest project data if currently open
+      setSelectedProjectForDetail((prev) => {
+        if (!prev) return null;
+        const matching = updatedProjects.find((p) => p.id === prev.id);
+        return matching || prev;
+      });
     });
 
     const unsubscribeDocs = storageService.subscribeToDocumentation((updatedDocs) => {
@@ -208,10 +214,28 @@ export default function App() {
   // Handlers for Project
   const handleSaveProject = async (project: Project) => {
     try {
+      const isEditing = !!(editingProject && editingProject.id === project.id);
       const updated = await storageService.saveProject(project);
       setProjects(updated);
       setSelectedCityId(project.cityId);
       
+      // Update selectedProjectForDetail if open so detail modal reflects edits immediately
+      if (selectedProjectForDetail && selectedProjectForDetail.id === project.id) {
+        setSelectedProjectForDetail(project);
+      }
+
+      // Update editingProject reference
+      if (editingProject && editingProject.id === project.id) {
+        setEditingProject(project);
+      }
+
+      // If active filter was the old project name, update it to new name
+      if (selectedProjectName !== 'ALL' && editingProject && selectedProjectName === editingProject.name) {
+        setSelectedProjectName(project.name);
+      }
+
+      showToast(isEditing ? `Perubahan proyek "${project.name}" berhasil disimpan!` : `Proyek baru "${project.name}" berhasil ditambahkan!`);
+
       // Smooth scroll to projects section so newly created project is instantly visible
       setTimeout(() => {
         const projSection = document.getElementById('projects-section');
@@ -221,6 +245,7 @@ export default function App() {
       }, 400);
     } catch (err: any) {
       console.error("Gagal menyimpan proyek:", err);
+      showToast(`Gagal menyimpan proyek: ${err?.message || "Terjadi kesalahan"}`, 'error');
       throw err;
     }
   };

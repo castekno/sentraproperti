@@ -56,17 +56,17 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
   const [category, setCategory] = useState<PropertyCategory>('Rumah');
   const [address, setAddress] = useState('');
   const [mapUrl, setMapUrl] = useState('');
-  const [price, setPrice] = useState<number>(500000000);
+  const [price, setPrice] = useState<number | ''>(500000000);
   const [paymentSchemes, setPaymentSchemes] = useState<PaymentScheme[]>(['Cash', 'Cash Bertahap', 'Bank BSI']);
   const [description, setDescription] = useState('');
   const [totalUnits, setTotalUnits] = useState<number | ''>(10);
   const [availableUnits, setAvailableUnits] = useState<number | ''>(5);
-  const [landArea, setLandArea] = useState<number>(100);
-  const [buildingArea, setBuildingArea] = useState<number>(60);
-  const [bedrooms, setBedrooms] = useState<number>(2);
-  const [bathrooms, setBathrooms] = useState<number>(1);
-  const [carports, setCarports] = useState<number>(1);
-  const [floors, setFloors] = useState<number>(1);
+  const [landArea, setLandArea] = useState<number | ''>(100);
+  const [buildingArea, setBuildingArea] = useState<number | ''>(60);
+  const [bedrooms, setBedrooms] = useState<number | ''>(2);
+  const [bathrooms, setBathrooms] = useState<number | ''>(1);
+  const [carports, setCarports] = useState<number | ''>(1);
+  const [floors, setFloors] = useState<number | ''>(1);
   const [electricity, setElectricity] = useState('1.300 Watt');
   const [waterSource, setWaterSource] = useState('PDAM');
   const [certificate, setCertificate] = useState('SHM (Sertifikat Hak Milik)');
@@ -89,79 +89,100 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Track previous isOpen state and editing project ID to ONLY populate form on initial modal open
+  const prevIsOpenRef = React.useRef(false);
+  const prevEditingIdRef = React.useRef<string | null>(null);
+
   useEffect(() => {
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    setIsSubmitting(false);
+    const wasOpen = prevIsOpenRef.current;
+    const isOpening = isOpen && !wasOpen;
+    const projectChanged = isOpen && (editingProject?.id || null) !== prevEditingIdRef.current;
 
-    if (editingProject) {
-      setCityId(editingProject.cityId);
-      setName(editingProject.name);
-      setGroupSales(editingProject.groupSales || '');
-      setCategory(editingProject.category);
-      setAddress(editingProject.address);
-      setMapUrl(editingProject.mapUrl);
-      setPrice(editingProject.price);
-      setPaymentSchemes(editingProject.paymentSchemes || ['Cash']);
-      setDescription(editingProject.description);
-      setTotalUnits(editingProject.totalUnits !== undefined ? editingProject.totalUnits : '');
-      setAvailableUnits(editingProject.availableUnits !== undefined ? editingProject.availableUnits : '');
-      setLandArea(editingProject.landArea);
-      setBuildingArea(editingProject.buildingArea);
-      setBedrooms(editingProject.bedrooms);
-      setBathrooms(editingProject.bathrooms);
-      setCarports(editingProject.carports || 1);
-      setFloors(editingProject.floors || 1);
-      setElectricity(editingProject.electricity || '1.300 Watt');
-      setWaterSource(editingProject.waterSource || 'PDAM');
-      setCertificate(editingProject.certificate || 'SHM (Sertifikat Hak Milik)');
-      setFacilitiesStr((editingProject.facilities || []).join(', '));
-      setStrategicStr((editingProject.strategicPoints || []).join(', '));
-      setStatus(editingProject.status || 'Tersedia');
-      setFeatured(editingProject.featured || false);
-      setBsiSchemePhoto(editingProject.bsiSchemePhoto || '');
-      setCashBertahapSchemePhoto(editingProject.cashBertahapSchemePhoto || '');
-      setCreditDeveloperSchemePhoto(editingProject.creditDeveloperSchemePhoto || '');
+    prevIsOpenRef.current = isOpen;
+    prevEditingIdRef.current = editingProject?.id || null;
 
-      const initialPhotos = editingProject.photos && editingProject.photos.length > 0
-        ? [...editingProject.photos]
-        : Array(6).fill('');
-      
-      setPhotoCount(initialPhotos.length);
-      setPhotos(initialPhotos);
-    } else {
-      // Default new project
-      setCityId(selectedCityId || (cities[0] ? cities[0].id : ''));
-      setName('');
-      setGroupSales('');
-      setCategory('Rumah');
-      setAddress('');
-      setMapUrl('');
-      setPrice(650000000);
-      setPaymentSchemes(['Cash', 'Cash Bertahap', 'Bank BSI']);
-      setDescription('Project hunian eksklusif dengan lokasi prima, keamanan 24 jam, dan nilai investasi tinggi.');
-      setTotalUnits(10);
-      setAvailableUnits(5);
-      setLandArea(100);
-      setBuildingArea(65);
-      setBedrooms(3);
-      setBathrooms(2);
-      setCarports(1);
-      setFloors(1);
-      setElectricity('1.300 Watt');
-      setWaterSource('PDAM');
-      setCertificate('SHM (Sertifikat Hak Milik)');
-      setFacilitiesStr('One Gate System, CCTV 24 Jam, Masjid, Taman Hijau, Row Jalan 8 Meter');
-      setStrategicStr('Dekat Gerbang Tol, 10 Menit ke Stasiun KRL, Dekat Sekolah & Mall');
-      setStatus('Tersedia');
-      setFeatured(false);
-      setBsiSchemePhoto('');
-      setCashBertahapSchemePhoto('');
-      setCreditDeveloperSchemePhoto('');
-      setPhotoCount(6);
-      setPhotos(Array(6).fill(''));
+    if (!isOpen) {
+      setErrorMessage(null);
+      setSuccessMessage(null);
+      setIsSubmitting(false);
+      return;
     }
-  }, [editingProject, isOpen, selectedCityId, cities]);
+
+    // Only populate form when modal opens or a different project is selected for editing
+    if (isOpening || projectChanged) {
+      setErrorMessage(null);
+      setSuccessMessage(null);
+      setIsSubmitting(false);
+
+      if (editingProject) {
+        setCityId(editingProject.cityId);
+        setName(editingProject.name);
+        setGroupSales(editingProject.groupSales || '');
+        setCategory(editingProject.category);
+        setAddress(editingProject.address);
+        setMapUrl(editingProject.mapUrl);
+        setPrice(editingProject.price !== undefined ? editingProject.price : 500000000);
+        setPaymentSchemes(editingProject.paymentSchemes || ['Cash']);
+        setDescription(editingProject.description || '');
+        setTotalUnits(editingProject.totalUnits !== undefined ? editingProject.totalUnits : '');
+        setAvailableUnits(editingProject.availableUnits !== undefined ? editingProject.availableUnits : '');
+        setLandArea(editingProject.landArea !== undefined ? editingProject.landArea : 100);
+        setBuildingArea(editingProject.buildingArea !== undefined ? editingProject.buildingArea : 60);
+        setBedrooms(editingProject.bedrooms !== undefined ? editingProject.bedrooms : 2);
+        setBathrooms(editingProject.bathrooms !== undefined ? editingProject.bathrooms : 1);
+        setCarports(editingProject.carports !== undefined ? editingProject.carports : 1);
+        setFloors(editingProject.floors !== undefined ? editingProject.floors : 1);
+        setElectricity(editingProject.electricity || '1.300 Watt');
+        setWaterSource(editingProject.waterSource || 'PDAM');
+        setCertificate(editingProject.certificate || 'SHM (Sertifikat Hak Milik)');
+        setFacilitiesStr((editingProject.facilities || []).join(', '));
+        setStrategicStr((editingProject.strategicPoints || []).join(', '));
+        setStatus(editingProject.status || 'Tersedia');
+        setFeatured(editingProject.featured || false);
+        setBsiSchemePhoto(editingProject.bsiSchemePhoto || '');
+        setCashBertahapSchemePhoto(editingProject.cashBertahapSchemePhoto || '');
+        setCreditDeveloperSchemePhoto(editingProject.creditDeveloperSchemePhoto || '');
+
+        const initialPhotos = editingProject.photos && editingProject.photos.length > 0
+          ? [...editingProject.photos]
+          : Array(6).fill('');
+        
+        setPhotoCount(initialPhotos.length);
+        setPhotos(initialPhotos);
+      } else {
+        // Default new project
+        setCityId(selectedCityId || (cities[0] ? cities[0].id : ''));
+        setName('');
+        setGroupSales('');
+        setCategory('Rumah');
+        setAddress('');
+        setMapUrl('');
+        setPrice(650000000);
+        setPaymentSchemes(['Cash', 'Cash Bertahap', 'Bank BSI']);
+        setDescription('Project hunian eksklusif dengan lokasi prima, keamanan 24 jam, dan nilai investasi tinggi.');
+        setTotalUnits(10);
+        setAvailableUnits(5);
+        setLandArea(100);
+        setBuildingArea(65);
+        setBedrooms(3);
+        setBathrooms(2);
+        setCarports(1);
+        setFloors(1);
+        setElectricity('1.300 Watt');
+        setWaterSource('PDAM');
+        setCertificate('SHM (Sertifikat Hak Milik)');
+        setFacilitiesStr('One Gate System, CCTV 24 Jam, Masjid, Taman Hijau, Row Jalan 8 Meter');
+        setStrategicStr('Dekat Gerbang Tol, 10 Menit ke Stasiun KRL, Dekat Sekolah & Mall');
+        setStatus('Tersedia');
+        setFeatured(false);
+        setBsiSchemePhoto('');
+        setCashBertahapSchemePhoto('');
+        setCreditDeveloperSchemePhoto('');
+        setPhotoCount(6);
+        setPhotos(Array(6).fill(''));
+      }
+    }
+  }, [editingProject?.id, isOpen]);
 
   // Dynamic picklist for Group Sales based on all projects in database
   const availableGroupSales = React.useMemo(() => {
@@ -333,6 +354,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
       };
 
       await onSaveProject(projectPayload);
+      prevEditingIdRef.current = projectPayload.id;
       setSuccessMessage(editingProject ? 'Perubahan proyek berhasil disimpan ke Database!' : 'Proyek baru berhasil disimpan ke Database!');
       
       setTimeout(() => {
@@ -468,7 +490,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
                 <input
                   type="number"
                   value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
+                  onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="650000000"
                   required
                   min={0}
@@ -1011,8 +1033,9 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">Luas Tanah (m²)</label>
                 <input
                   type="number"
+                  min="0"
                   value={landArea}
-                  onChange={(e) => setLandArea(Number(e.target.value))}
+                  onChange={(e) => setLandArea(e.target.value === '' ? '' : Number(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                 />
               </div>
@@ -1021,8 +1044,9 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">Luas Bangunan (m²)</label>
                 <input
                   type="number"
+                  min="0"
                   value={buildingArea}
-                  onChange={(e) => setBuildingArea(Number(e.target.value))}
+                  onChange={(e) => setBuildingArea(e.target.value === '' ? '' : Number(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                 />
               </div>
@@ -1031,8 +1055,9 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">Kamar Tidur</label>
                 <input
                   type="number"
+                  min="0"
                   value={bedrooms}
-                  onChange={(e) => setBedrooms(Number(e.target.value))}
+                  onChange={(e) => setBedrooms(e.target.value === '' ? '' : Number(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                 />
               </div>
@@ -1041,8 +1066,9 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">Kamar Mandi</label>
                 <input
                   type="number"
+                  min="0"
                   value={bathrooms}
-                  onChange={(e) => setBathrooms(Number(e.target.value))}
+                  onChange={(e) => setBathrooms(e.target.value === '' ? '' : Number(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                 />
               </div>
@@ -1051,8 +1077,9 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">Carport / Parkir</label>
                 <input
                   type="number"
+                  min="0"
                   value={carports}
-                  onChange={(e) => setCarports(Number(e.target.value))}
+                  onChange={(e) => setCarports(e.target.value === '' ? '' : Number(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                 />
               </div>
@@ -1061,10 +1088,42 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">Jumlah Lantai</label>
                 <input
                   type="number"
+                  min="1"
                   value={floors}
-                  onChange={(e) => setFloors(Number(e.target.value))}
+                  onChange={(e) => setFloors(e.target.value === '' ? '' : Number(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                 />
+              </div>
+
+              {/* Status Properti */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">Status Properti</label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as PropertyStatus)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
+                >
+                  <option value="Tersedia">Tersedia</option>
+                  <option value="Indent">Indent</option>
+                  <option value="Terjual">Terjual</option>
+                  <option value="Hot Deal">Hot Deal</option>
+                </select>
+              </div>
+
+              {/* Proyek Unggulan */}
+              <div className="flex items-center gap-2 pt-5">
+                <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-bold text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={featured}
+                    onChange={(e) => setFeatured(e.target.checked)}
+                    className="w-4 h-4 text-amber-500 rounded border-slate-300 focus:ring-amber-400"
+                  />
+                  <span className="flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    Proyek Unggulan
+                  </span>
+                </label>
               </div>
 
               {/* Sertifikat / Legal Picklist */}
