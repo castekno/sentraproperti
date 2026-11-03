@@ -109,6 +109,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   const waMessage = encodeURIComponent(
     `Halo Tim Sentra Properti, saya tertarik dan ingin konsultasi / survey lokasi untuk:\n\n` +
     `*Nama Project*: ${project.name}\n` +
+    (project.location ? `*Lokasi*: ${project.location}\n` : '') +
     (project.groupSales ? `*Group Sales*: ${project.groupSales}\n` : '') +
     `*Kategori*: ${project.category}\n` +
     `*Kota*: ${city ? city.name : '-'}\n` +
@@ -246,12 +247,22 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 </>
               )}
 
-              {/* Overlay Bar without caption text */}
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-3.5 text-white flex items-center justify-between">
-                <span className="text-xs font-semibold tracking-wide text-slate-200">
-                  {project.name} • #{activePhotoIndex + 1}
-                </span>
-                <span className="text-[11px] text-amber-300 font-semibold">
+              {/* Overlay Bar */}
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3.5 sm:p-4 text-white flex items-end justify-between gap-3">
+                <div className="flex flex-col min-w-0 pr-1">
+                  {project.location && (
+                    <span className="text-sm sm:text-base font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] truncate tracking-wide mb-0.5">
+                      {project.location}
+                    </span>
+                  )}
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                    <MapPin className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                    <span>{city ? city.name : 'Lokasi Proyek'}</span>
+                    <span className="text-slate-400">•</span>
+                    <span className="text-slate-300 font-normal">{project.name} • #{activePhotoIndex + 1}</span>
+                  </div>
+                </div>
+                <span className="text-[11px] text-amber-300 font-semibold hidden sm:inline flex-shrink-0 bg-black/40 px-2.5 py-1 rounded-md">
                   Klik foto untuk perbesar (HD)
                 </span>
               </div>
@@ -339,7 +350,12 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               <div className="flex items-start gap-2 pt-1 text-xs text-slate-700">
                 <MapPin className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold text-[#0B1E36]">{project.address}</span>
+                  {project.location && (
+                    <div className="font-extrabold text-[#0B1E36] text-sm">
+                      {project.location}
+                    </div>
+                  )}
+                  <span className="font-medium text-slate-700">{project.address}</span>
                   {city && <span className="text-slate-500"> — {city.name}, {city.province}</span>}
                 </div>
               </div>

@@ -56,6 +56,7 @@
       "properties": {
         "id": { "type": "string" },
         "name": { "type": "string" },
+        "location": { "type": "string", "description": "Lokasi proyek spesifik (misal nama area/kecamatan/jalan)" },
         "groupSales": { "type": "string", "description": "Group Sales marketing/sales team" },
         "cityId": { "type": "string" },
         "developer": { "type": "string" },

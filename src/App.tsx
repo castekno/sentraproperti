@@ -146,6 +146,7 @@ export default function App() {
         const cityMatch = cities.find((c) => c.id === proj.cityId)?.name.toLowerCase().includes(q);
         const match =
           proj.name.toLowerCase().includes(q) ||
+          (proj.location && proj.location.toLowerCase().includes(q)) ||
           proj.category.toLowerCase().includes(q) ||
           proj.address.toLowerCase().includes(q) ||
           proj.description.toLowerCase().includes(q) ||

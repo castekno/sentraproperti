@@ -15,6 +15,7 @@ export interface Project {
   id: string;
   cityId: string;
   name: string;
+  location?: string; // Lokasi proyek (misal: nama kecamatan / area / jalan spesifik)
   groupSales?: string; // Group Sales
   category: PropertyCategory;
   address: string;

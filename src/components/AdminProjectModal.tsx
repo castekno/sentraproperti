@@ -21,6 +21,7 @@ import {
 
 import { compressImageFile } from '../utils/imageUtils';
 import { storageService } from '../services/storageService';
+import { INITIAL_PROJECTS } from '../data/initialData';
 
 interface AdminProjectModalProps {
   isOpen: boolean;
@@ -52,6 +53,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
 }) => {
   const [cityId, setCityId] = useState('');
   const [name, setName] = useState('');
+  const [location, setLocation] = useState('');
   const [groupSales, setGroupSales] = useState<string>('');
   const [category, setCategory] = useState<PropertyCategory>('Rumah');
   const [address, setAddress] = useState('');
@@ -117,6 +119,10 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
       if (editingProject) {
         setCityId(editingProject.cityId);
         setName(editingProject.name);
+        const fallbackLocation = INITIAL_PROJECTS.find(
+          (ip) => ip.id === editingProject.id || ip.name.toLowerCase() === editingProject.name.toLowerCase()
+        )?.location;
+        setLocation(editingProject.location || fallbackLocation || '');
         setGroupSales(editingProject.groupSales || '');
         setCategory(editingProject.category);
         setAddress(editingProject.address);
@@ -153,6 +159,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
         // Default new project
         setCityId(selectedCityId || (cities[0] ? cities[0].id : ''));
         setName('');
+        setLocation('');
         setGroupSales('');
         setCategory('Rumah');
         setAddress('');
@@ -294,7 +301,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
     setSuccessMessage(null);
 
     if (!name.trim()) {
-      setErrorMessage('Nama project perumahan / lokasi wajib diisi.');
+      setErrorMessage('Nama Project Perumahan wajib diisi.');
       return;
     }
 
@@ -323,6 +330,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
         id: editingProject ? editingProject.id : `proj-${Date.now()}`,
         cityId,
         name: name.trim(),
+        location: location.trim() || undefined,
         groupSales: groupSales.trim() || undefined,
         category,
         address: address.trim() || 'Lokasi Strategis',
@@ -468,21 +476,52 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="sm:col-span-2">
+            {/* Pemisahan Dua Field Terpisah: 1. Nama Project Perumahan, 2. Lokasi */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Field 1: Nama Project Perumahan */}
+              <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Nama Project Perumahan / Lokasi *
+                  Nama Project Perumahan <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Contoh: Sentra Hills Dago, Kavling Sentra Cimenyan..."
+                  placeholder="Contoh: Sentra Hills Dago, Cluster Harmony..."
                   required
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-300"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-300 font-medium text-slate-800"
                 />
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Nama identitas project perumahan
+                </span>
               </div>
 
+              {/* Field 2: Lokasi */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Lokasi</span>
+                  </span>
+                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-full border border-amber-200">
+                    Tampil di atas nama kota
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Contoh: Dago Atas, Cimenyan, BSD City..."
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-300 font-medium text-slate-800"
+                />
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Area / kawasan spesifik proyek (tampil di atas nama kota pada foto cover)
+                </span>
+              </div>
+            </div>
+
+            {/* Harga Jual, Alamat Lengkap, Link Google Map */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Harga Jual (Rp) *
@@ -498,9 +537,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-[#0B1E36] focus:bg-white focus:ring-2 focus:ring-amber-300"
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Alamat Lengkap Project

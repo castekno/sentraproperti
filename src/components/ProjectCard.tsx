@@ -108,14 +108,21 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </span>
         </div>
 
-        {/* City Tag on Bottom of Image */}
-        <div className="absolute bottom-3 left-3 right-3 text-white flex items-center justify-between">
-          <div className="flex items-center gap-1 text-xs font-semibold text-amber-300 drop-shadow-sm">
-            <MapPin className="w-3.5 h-3.5 text-amber-400" />
-            <span>{city ? city.name : 'Lokasi Proyek'}</span>
+        {/* Lokasi & City Tag on Bottom of Image */}
+        <div className="absolute bottom-3 left-3 right-3 text-white flex items-end justify-between gap-2">
+          <div className="flex flex-col min-w-0 pr-1">
+            {project.location && (
+              <span className="text-xs sm:text-sm font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] truncate tracking-wide leading-tight mb-0.5">
+                {project.location}
+              </span>
+            )}
+            <div className="flex items-center gap-1 text-xs font-semibold text-amber-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+              <MapPin className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+              <span className="truncate">{city ? city.name : 'Lokasi Proyek'}</span>
+            </div>
           </div>
 
-          <span className="text-[11px] font-medium text-slate-200 bg-black/40 px-2 py-0.5 rounded">
+          <span className="text-[11px] font-medium text-slate-200 bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded flex-shrink-0">
             {project.certificate || 'SHM'}
           </span>
         </div>

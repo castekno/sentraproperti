@@ -177,7 +177,13 @@ export const storageService = {
         return [];
       }
       const parsed = JSON.parse(data);
-      memoryProjects = Array.isArray(parsed) ? parsed : INITIAL_PROJECTS;
+      const withFallbacks = Array.isArray(parsed)
+        ? parsed.map((p: Project) => ({
+            ...p,
+            location: p.location || INITIAL_PROJECTS.find((ip) => ip.id === p.id || ip.name.toLowerCase() === (p.name || '').toLowerCase())?.location,
+          }))
+        : INITIAL_PROJECTS;
+      memoryProjects = withFallbacks;
       return memoryProjects;
     } catch {
       memoryProjects = INITIAL_PROJECTS;
@@ -277,9 +283,13 @@ export const storageService = {
           } else if (data && (data.name || data.price !== undefined)) {
             // Individual project document
             const p = data as Project;
+            const fallbackLoc = INITIAL_PROJECTS.find(
+              (ip) => ip.id === (p.id || docId) || ip.name.toLowerCase() === (p.name || '').toLowerCase()
+            )?.location;
             individualProjects.push({
               ...p,
-              id: p.id || docId
+              id: p.id || docId,
+              location: p.location || fallbackLoc,
             });
           }
         });
@@ -297,13 +307,23 @@ export const storageService = {
             if (legP && legP.id) {
               try {
                 const sRef = doc(db, PROPERTY_COLLECTION, legP.id);
-                await setDoc(sRef, sanitizeForFirestore(legP));
+                const fallbackLoc = INITIAL_PROJECTS.find(
+                  (ip) => ip.id === legP.id || ip.name.toLowerCase() === (legP.name || '').toLowerCase()
+                )?.location;
+                const enrichedLegP = {
+                  ...legP,
+                  location: legP.location || fallbackLoc,
+                };
+                await setDoc(sRef, sanitizeForFirestore(enrichedLegP));
               } catch (mErr) {
                 console.warn('Migration legacy proj note:', mErr);
               }
             }
           }
-          finalProjects = legacyMasterProjects;
+          finalProjects = (legacyMasterProjects as Project[]).map((legP) => ({
+            ...legP,
+            location: legP.location || INITIAL_PROJECTS.find((ip) => ip.id === legP.id || ip.name.toLowerCase() === (legP.name || '').toLowerCase())?.location,
+          }));
         } else if (colSnapshot.empty && !localStorage.getItem(INITIALIZED_FLAG_KEY)) {
           // Only seed initial data if brand new database
           await this.migrateAllDataToFirestore();
