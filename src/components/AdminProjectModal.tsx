@@ -59,6 +59,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
   const [address, setAddress] = useState('');
   const [mapUrl, setMapUrl] = useState('');
   const [price, setPrice] = useState<number | ''>(500000000);
+  const [promoPrice, setPromoPrice] = useState<number | ''>('');
   const [paymentSchemes, setPaymentSchemes] = useState<PaymentScheme[]>(['Cash', 'Cash Bertahap', 'Bank BSI']);
   const [description, setDescription] = useState('');
   const [totalUnits, setTotalUnits] = useState<number | ''>(10);
@@ -128,6 +129,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
         setAddress(editingProject.address);
         setMapUrl(editingProject.mapUrl);
         setPrice(editingProject.price !== undefined ? editingProject.price : 500000000);
+        setPromoPrice(editingProject.promoPrice !== undefined && editingProject.promoPrice > 0 ? editingProject.promoPrice : '');
         setPaymentSchemes(editingProject.paymentSchemes || ['Cash']);
         setDescription(editingProject.description || '');
         setTotalUnits(editingProject.totalUnits !== undefined ? editingProject.totalUnits : '');
@@ -165,6 +167,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
         setAddress('');
         setMapUrl('');
         setPrice(650000000);
+        setPromoPrice('');
         setPaymentSchemes(['Cash', 'Cash Bertahap', 'Bank BSI']);
         setDescription('Project hunian eksklusif dengan lokasi prima, keamanan 24 jam, dan nilai investasi tinggi.');
         setTotalUnits(10);
@@ -336,6 +339,7 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
         address: address.trim() || 'Lokasi Strategis',
         mapUrl: mapUrl.trim() || `https://maps.google.com/?q=${encodeURIComponent(name + ' ' + address)}`,
         price: Number(price) || 0,
+        promoPrice: promoPrice !== '' && Number(promoPrice) > 0 ? Number(promoPrice) : undefined,
         paymentSchemes,
         description: description.trim(),
         totalUnits: totalUnits !== '' ? Number(totalUnits) : undefined,
@@ -520,8 +524,8 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
               </div>
             </div>
 
-            {/* Harga Jual, Alamat Lengkap, Link Google Map */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Harga Jual, Harga Promo, Alamat Lengkap, Link Google Map */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Harga Jual (Rp) *
@@ -538,6 +542,22 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
                 />
               </div>
 
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Harga Promo (Rp) <span className="text-[10px] font-normal text-slate-400">(Opsional)</span>
+                </label>
+                <input
+                  type="number"
+                  value={promoPrice}
+                  onChange={(e) => setPromoPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                  placeholder="Kosongkan jika tidak ada promo"
+                  min={0}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-[#0B1E36] focus:bg-white focus:ring-2 focus:ring-amber-300"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Alamat Lengkap Project
@@ -1288,4 +1308,3 @@ export const AdminProjectModal: React.FC<AdminProjectModalProps> = ({
     </div>
   );
 };
-

@@ -13,6 +13,7 @@ import { DocumentationSection } from './components/DocumentationSection';
 import { AdminDocumentationModal } from './components/AdminDocumentationModal';
 import { DocumentationLightboxModal } from './components/DocumentationLightboxModal';
 import { Footer } from './components/Footer';
+import { createProjectSlug } from './utils/slug';
 import { 
   Building2, 
   MapPin, 
@@ -107,6 +108,38 @@ export default function App() {
     };
   }, []);
 
+  // Handle URL query ?proyek=slug on initial load or browser navigation
+  useEffect(() => {
+    if (projects.length === 0) return;
+    const params = new URLSearchParams(window.location.search);
+    const targetSlug = params.get('proyek');
+    if (targetSlug) {
+      const cleanSlug = targetSlug.toLowerCase().trim();
+      const matched = projects.find((p) => {
+        const pSlug = createProjectSlug(p.name);
+        return (
+          pSlug === cleanSlug ||
+          pSlug.replace(/-+$/, '') === cleanSlug.replace(/-+$/, '') ||
+          p.id.toLowerCase() === cleanSlug
+        );
+      });
+      if (matched) {
+        setSelectedProjectForDetail(matched);
+      }
+    }
+  }, [projects]);
+
+  const handleOpenProjectDetail = (p: Project) => {
+    setSelectedProjectForDetail(p);
+    const slug = createProjectSlug(p.name);
+    window.history.replaceState(null, '', `?proyek=${slug}`);
+  };
+
+  const handleCloseProjectDetail = () => {
+    setSelectedProjectForDetail(null);
+    window.history.replaceState(null, '', window.location.pathname);
+  };
+
   // Selected City Object
   const selectedCity = useMemo(() => {
     return cities.find((c) => c.id === selectedCityId) || null;
@@ -172,8 +205,10 @@ export default function App() {
       return true;
     }).sort((a, b) => {
       if (sortBy === 'oldest') return (a.createdAt || 0) - (b.createdAt || 0);
-      if (sortBy === 'price-asc') return a.price - b.price;
-      if (sortBy === 'price-desc') return b.price - a.price;
+      const priceA = a.promoPrice && a.promoPrice > 0 ? a.promoPrice : a.price;
+      const priceB = b.promoPrice && b.promoPrice > 0 ? b.promoPrice : b.price;
+      if (sortBy === 'price-asc') return priceA - priceB;
+      if (sortBy === 'price-desc') return priceB - priceA;
       return (b.createdAt || 0) - (a.createdAt || 0);
     });
   }, [projects, cities, currentView, selectedCityId, searchQuery, selectedProjectName, selectedCategory, selectedScheme, sortBy]);
@@ -542,7 +577,7 @@ export default function App() {
                   key={project.id}
                   project={project}
                   city={projCity}
-                  onSelect={(p) => setSelectedProjectForDetail(p)}
+                  onSelect={handleOpenProjectDetail}
                   isAdmin={isAdmin}
                   onEdit={(p) => {
                     setEditingProject(p);
@@ -600,7 +635,7 @@ export default function App() {
         project={selectedProjectForDetail}
         city={cities.find((c) => c.id === selectedProjectForDetail?.cityId)}
         isOpen={!!selectedProjectForDetail}
-        onClose={() => setSelectedProjectForDetail(null)}
+        onClose={handleCloseProjectDetail}
         isAdmin={isAdmin}
         onEdit={(p) => {
           setEditingProject(p);
@@ -713,9 +748,18 @@ export default function App() {
                     {projectToDelete.address}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-extrabold text-amber-600">
-                      {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(projectToDelete.price)}
-                    </span>
+                    <div className="flex flex-col">
+                      {(projectToDelete.promoPrice ?? 0) > 0 && (
+                        <span className="text-[10px] font-semibold text-slate-400 line-through leading-tight">
+                          {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(projectToDelete.price)}
+                        </span>
+                      )}
+                      <span className="text-xs font-extrabold text-amber-600 leading-tight">
+                        {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(
+                          (projectToDelete.promoPrice ?? 0) > 0 ? projectToDelete.promoPrice! : projectToDelete.price
+                        )}
+                      </span>
+                    </div>
                     <span className="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded">
                       {projectToDelete.category}
                     </span>

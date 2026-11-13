@@ -113,7 +113,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     (project.groupSales ? `*Group Sales*: ${project.groupSales}\n` : '') +
     `*Kategori*: ${project.category}\n` +
     `*Kota*: ${city ? city.name : '-'}\n` +
-    `*Harga*: ${formatRupiah(project.price)}\n` +
+    `*Harga*: ${formatRupiah(project.promoPrice && project.promoPrice > 0 ? project.promoPrice : project.price)}\n` +
     `*Skema Minat*: ${project.paymentSchemes.join(', ')}\n\n` +
     `Mohon informasi ketersediaan unit, jadwal survey, dan pricelist lengkapnya. Terima kasih.`
   );
@@ -309,9 +309,20 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 <Building className="w-4 h-4" />
                 <span>PENAWARAN HARGA TERBAIK SENTRA PROPERTI</span>
               </div>
-              <div className="text-3xl sm:text-4xl font-black text-[#0B1E36]">
-                {formatRupiah(project.price)}
-              </div>
+              {project.promoPrice && project.promoPrice > 0 ? (
+                <div className="space-y-0.5">
+                  <div className="text-base sm:text-lg font-bold text-slate-400 line-through">
+                    {formatRupiah(project.price)}
+                  </div>
+                  <div className="text-3xl sm:text-4xl font-black text-[#0B1E36]">
+                    {formatRupiah(project.promoPrice)}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-3xl sm:text-4xl font-black text-[#0B1E36]">
+                  {formatRupiah(project.price)}
+                </div>
+              )}
 
               {/* Unit Availability Highlight Banner */}
               {(project.totalUnits !== undefined || project.availableUnits !== undefined) && (

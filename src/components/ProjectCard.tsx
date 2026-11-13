@@ -215,9 +215,20 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
           <div>
             <span className="text-[10px] font-medium text-slate-400 block leading-tight">Harga Penjualan</span>
-            <div className="text-base sm:text-lg font-black text-[#0B1E36]">
-              {formatRupiah(project.price)}
-            </div>
+            {project.promoPrice && project.promoPrice > 0 ? (
+              <>
+                <div className="text-[11px] sm:text-xs font-semibold text-slate-400 line-through leading-tight">
+                  {formatRupiah(project.price)}
+                </div>
+                <div className="text-base sm:text-lg font-black text-[#0B1E36] leading-tight">
+                  {formatRupiah(project.promoPrice)}
+                </div>
+              </>
+            ) : (
+              <div className="text-base sm:text-lg font-black text-[#0B1E36]">
+                {formatRupiah(project.price)}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5">

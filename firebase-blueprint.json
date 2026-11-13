@@ -61,6 +61,7 @@
         "cityId": { "type": "string" },
         "developer": { "type": "string" },
         "price": { "type": "string" },
+        "promoPrice": { "type": "number", "description": "Harga promo proyek (opsional)" },
         "status": { "type": "string" },
         "type": { "type": "string" },
         "images": { "type": "array" },

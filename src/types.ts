@@ -21,7 +21,9 @@ export interface Project {
   address: string;
   mapUrl: string;
   price: number;
+  promoPrice?: number;
   priceDisplay?: string;
+  priceLabel?: string;
   paymentSchemes: PaymentScheme[]; // 'Cash', 'Cash Bertahap', 'Bank BSI', 'Credit Developer'
   description: string;
   landArea: number; // LT dalam m2
