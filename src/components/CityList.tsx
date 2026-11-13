@@ -191,4 +191,3 @@ export const CityList: React.FC<CityListProps> = ({
     </section>
   );
 };
-

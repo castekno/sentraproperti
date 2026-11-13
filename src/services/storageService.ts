@@ -261,7 +261,7 @@ export const storageService = {
       propertyColRef,
       async (colSnapshot) => {
         const individualProjects: Project[] = [];
-        let legacyMasterProjects: Project[] | null = null;
+        let legacyMasterProjects = null as Project[] | null;
         let remoteCitiesFromDoc: City[] | null = null;
 
         colSnapshot.forEach((docSnap) => {
